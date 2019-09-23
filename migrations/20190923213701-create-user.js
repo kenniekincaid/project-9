@@ -9,16 +9,24 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       firstName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: false,
+        allowNull: false
       },
       lastName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: false,
+        allowNull: false
       },
       emailAddress: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: false,
+        allowNull: false
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: false,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
