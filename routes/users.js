@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models');
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+/**USER ROUTES
+ */
+// //Send a GET request to /api/users to READ currently authenticated user.
+router.get('/', (req, res, next) => {
+  res.json({ message: "I'm a valid user!"});
 });
 
 module.exports = router;
