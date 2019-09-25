@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.json({ message: "Welcome to the ReST API!"});
+/* Friendly greeting for the root route */
+router.get('/', function(req, res) {
+  res.json({
+    message: "Welcome to Kennie's ReST API Validation with Express project!"
+  }); //WORKING!!!
 });
 
 module.exports = router;

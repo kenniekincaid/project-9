@@ -4,15 +4,36 @@ const { Course } = require('../models');
 
 /* GET courses listing. */
 router.get('/', function(req, res, next) {
-    res.send('You have requested a course');
+    res.json({message: "You have successfully requested all courses!"}); //WORKING!!!
 });
 
-// /* GET a course. */
-// router.get('/:id', function (req, res, next) {
-//     res.send(`You have requested a course ${req.params.id}`);
-// });
+/* GET a course. */
+router.get('/:id', function (req, res, next) {
+    res.json({message: `You have successfully requested course ID#: ${req.params.id}`}); //WORKING!!!
+});
 
-//when moving routes here, please make suer to ONLY put the very last parameter '/' or '/:id' that you're looking for...
-//The place in app.js where you are calling the model will already assign the '/api/course' portion...
+//Send a POST request to api/courses to CREATE a new course, SET LOCATION to URI for the course, and returns no content.
+router.post('/', (req, res) => {
+    //Get course from the request body
+    const course = req.body;
+    //Add course to `courses` array.
+    courses.push(course);
+    //Set the status to 201 Ceated and end the response.
+    res.status(201).end();
+});
+
+//DELETE a course (w/wo auth).
+router.delete('/:id', (req, res, next) => {
+Course.findByPk(req.params.id).then( async function(course){
+    if(course) {
+    await course.destroy();
+    res.redirect('/');
+    } else {
+    res.send(404);
+    }
+}).catch(function(error){
+    res.send(500, error);
+    });
+});
 
 module.exports = router;
