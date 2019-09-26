@@ -1,47 +1,49 @@
 'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define(
-    'User',
-    {
-      firstName: {
-        type: DataTypes.STRING,
-        validate: {
-          notEmpty: {
-            msg: "First name is required"
-          }
-        }
-      },
-      lastName: {
-        type: DataTypes.STRING,
-        validate: {
-          notEmpty: {
-            msg: "Last name is required"
-          }
-        }
-      },
-      emailAddress: {
-        type: DataTypes.STRING,
-        validate: {
-          notEmpty: {
-            msg: "Email is required"
-          }
-        }
-      },
-      password: {
-        type: DataTypes.STRING,
-        validate: {
-          notEmpty: {
-            msg: "Password is required"
-          }
-        }
-      },
-    }
-  );
 
-  /**ASSOCIATIONS - Creates foreign key references*/
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define('User', {
+    firstName: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "First Name is required"
+        }
+      }
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "Last Name is required"
+        }
+      }
+    },
+    emailAddress: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "Email Address is required"
+        },
+        isEmail: true,
+      }
+    },
+    password: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "Password is required"
+        }
+      }
+    },
+  }, {});
   User.associate = function(models) {
     // associations can be defined here
-    User.hasMany(models.Course); //Will add userID to Courses model
+    User.hasMany(models.Course, { 
+      foreignKey: {
+        fieldName: 'userId',
+        allowNull: false,
+      }
+    });
   };
   return User;
 };

@@ -1,49 +1,73 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models');
+const { User } = require('../models'); 
+const bcryptjs = require('bcryptjs');
+const authenticateUser = require('./authentication');
+const { check, validationResult } = require('express-validator');
 
-/**USER ROUTES*/
-//Send a GET request to /api/users to READ currently authenticated user.
-router.get('/', (req, res, next) => {
-  res.json({ message: "I'm a valid user!"}); //WORKING!!!
+//ROUTE 1 of 2: Send a GET request to /users to return the currently authenticated user
+router.get('/', authenticateUser, (req, res, next) => {
+    return res.status(200).json({    
+    userId: req.currentUser.get("id"),
+    firstName: req.currentUser.get("firstName"),
+    lastName: req.currentUser.get("lastName"),
+    emailAddress: req.currentUser.get("emailAddress")
+  });
 });
 
-// //Get a user
-// router.get('/:id', function (req, res, next) {
-//   res.json({message: `You've successfully requested user ID#: ${req.params.id}`});
-// });
-
-//Send a POST request to /api/users to CREATE a user, sets location header to '/', returns no content,.
-router.post('/', (req, res) => {
-  //Get user from the request body
-  const user = req.body.id;
-  const errors = [];
+//ROUTE 2 of 2: Send a POST request to /users to CREATE a new user, sets the Location header to "/", and returns no content 
+router.post('/', [
+  // Validations
+  check('firstName')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "first name"'),
+  check('lastName')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "last name"'),
+  check('emailAddress')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "email"')
+    .isEmail()
+    .withMessage('Please provide a valid email address for "email"'),
+  check('password')
+    .exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "password"')
+    .isLength({ min: 8, max: 20 })
+    .withMessage('Please provide a "password" that is between 8 and 20 characters in length')
+], async (req, res, next)=>{
+    // Get the validation result from Request object.
+    const errors = validationResult(req);
+  // If validation errors exist...
+  if (!errors.isEmpty()) {
+    // Use the Array `map()` method to get a list of error messages.
+    const errorMessages = errors.array().map(error => error.msg);
+    
+    // Return validation errors to the client.
+    const err = new Error(errorMessages);
+    err.status = 400;
+    next(err);   
+  }else{
+    const user = new User ({
+      "firstName": req.body.firstName,
+      "lastName": req.body.lastName,
+      "emailAddress": req.body.emailAddress,
+      "password": bcryptjs.hashSync(req.body.password)
+      })
   
-  //Validate that we have a 'first name' value.
-  if (!User.firstName){
-    errors.push('Please provide a value for first name');
-  }
-
-  //Validate that we have a 'last name' value.
-  if (!User.lastName){
-    errors.push('Please provide a value for last name');
+    try {
+      await user.save();
+      res.location('/');
+      // Set the status to 201 Created and end the response.
+      res.status(201).end();
+    } catch (err) {
+      if(err.name === 'SequelizeValidationError') {
+        res.status(400).json({message: "Please complete all required fields"});
+        next();
+      } else {
+        res.status(400).json({message: 'This email already exists. Please log in or Try Again!'});
+      }
+    }
   }
   
-  //Validate that we have an 'email' value.
-  if (!User.emailAddress){
-    errors.push('Please provide a value for email address')
-  }
-  
-  //If there are any errors...
-  if (errors.length > 0){
-    //Return the validation errors to the client.
-    res.status(400).json({ errors });
-  } else {
-    //Add user to `users` array.
-    users.push(user);
-    //Set the status to 201 Created and end the response.
-    res.status(201).end();
-  }
 });
-
 module.exports = router;

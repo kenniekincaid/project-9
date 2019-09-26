@@ -8,7 +8,6 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-//Instance of
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
@@ -32,14 +31,22 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
-try {
-  sequelize.authenticate();
-  console.log("Database connected successfully!");
-} catch (error) {
-  console.error("Database connection failed...");
-}
-
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+(async () => {
+  try {
+    // Test the connection to the database
+    console.log('Connection to the database successful!');
+    await sequelize.authenticate();
+
+    // Sync the models
+    // console.log('Synchronizing the models with the database...');
+    //force: true completely drops a table and re-creates it afterwards each time you start your app (it's a destructive operation). 
+    // await sequelize.sync({ force: true });
+  } catch(error) {
+    console.log('Connection to the database was unsuccessful!');
+  }
+})();
 
 module.exports = db;

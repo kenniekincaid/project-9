@@ -1,41 +1,39 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Course = sequelize.define(
-    'Course',
-    {
-      userId: {
-        type: DataTypes.INTEGER,
-        validate: {
-          notEmpty: {
-            msg: "User ID is required"
-          }
+  const Course = sequelize.define('Course', {
+    title: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          msg: "Title is required"
         }
-      },
-      title: {
-        type: DataTypes.STRING,
-        validate: {
-          notEmpty: {
-            msg: "Course title is required"
-          }
+      }
+    },
+    description: {
+      type: DataTypes.TEXT,
+      validate: {
+        notEmpty: {
+          msg: "Description is required"
         }
-      },
-      description: {
-        type: DataTypes.TEXT,
-        validate: {
-          notEmpty: {
-            msg: "Description is required"
-          }
-        }
-      },
-      estimatedTime: DataTypes.STRING,
-      materialsNeeded: DataTypes.STRING
-    }
-  );
-
-  /**ASSOCIATIONS - Creates foreign key references*/
+      }
+    },
+    estimatedTime: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    materialsNeeded: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+  }, {});
   Course.associate = function(models) {
     // associations can be defined here
-    Course.belongsTo(models.User); //Adds a course to a User
+    Course.belongsTo(models.User, { 
+      foreignKey: {
+        fieldName: 'userId',
+        allowNull: false,
+      }
+    });
   };
   return Course;
 };
